@@ -1,0 +1,24 @@
+# Virtual environment - never commit (830 MB)
+venv/
+.venv/
+env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# NOTE: models/*.pkl are deliberately NOT ignored.
+# Streamlit Community Cloud does not run training, so the trained
+# artifacts must be in the repo or the dashboard cannot start.
