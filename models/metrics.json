@@ -1,24 +1,24 @@
 {
   "logistic_regression": {
-    "accuracy": 0.7133,
-    "precision": 0.5556,
-    "recall": 0.7426,
-    "f1_score": 0.6356,
-    "roc_auc": 0.8014
+    "accuracy": 0.7233,
+    "precision": 0.5667,
+    "recall": 0.7574,
+    "f1_score": 0.6483,
+    "roc_auc": 0.8052
   },
   "random_forest": {
-    "accuracy": 0.7383,
-    "precision": 0.5918,
-    "recall": 0.7178,
-    "f1_score": 0.6488,
-    "roc_auc": 0.7998
+    "accuracy": 0.72,
+    "precision": 0.5625,
+    "recall": 0.7574,
+    "f1_score": 0.6456,
+    "roc_auc": 0.7969
   },
   "gradient_boosting": {
-    "accuracy": 0.7583,
-    "precision": 0.6667,
-    "recall": 0.5644,
-    "f1_score": 0.6113,
-    "roc_auc": 0.7908
+    "accuracy": 0.7483,
+    "precision": 0.6509,
+    "recall": 0.5446,
+    "f1_score": 0.593,
+    "roc_auc": 0.799
   },
   "best_model": "logistic_regression"
 }

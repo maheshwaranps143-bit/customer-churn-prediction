@@ -5,9 +5,9 @@ FastAPI REST API exposing the trained churn model.
 
 Endpoints:
     GET  /health              -> simple health check
-    POST /predict              -> predict churn probability + SHAP explanation for one customer
-    GET  /feature-importance   -> global SHAP feature importance for the whole model
-    GET  /metrics               -> saved evaluation metrics for all trained models
+    POST /predict             -> churn probability + reasons for one customer
+    GET  /feature-importance  -> global feature importance for the model
+    GET  /metrics             -> saved evaluation metrics for all trained models
 
 Run from the project root:
     uvicorn src.api:app --reload --port 8000
@@ -16,67 +16,65 @@ Then open http://127.0.0.1:8000/docs for interactive Swagger docs.
 """
 
 import json
-import os
 import sys
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Literal
 
-import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 # Allow running this file both as `python src/api.py` and as
 # `uvicorn src.api:app` by making sure src/ is on the path.
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(str(Path(__file__).resolve().parent))
 
-from explainability import explain_instance_shap, global_feature_importance_shap, load_artifacts
-from preprocessing import CATEGORICAL_FEATURES, NUMERIC_FEATURES
+from explainability import MODELS_DIR, ChurnExplainer, load_artifacts
+from preprocessing import FEATURE_LABELS, MODEL_FEATURES
 
-MODELS_DIR = "models"
+state = {}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load model artifacts once at startup (not on every request).
+    try:
+        pipeline, _, background_sample = load_artifacts()
+        state["pipeline"] = pipeline
+        state["background"] = background_sample
+        state["explainer"] = ChurnExplainer(pipeline, background_sample)
+        print("Model artifacts loaded successfully.")
+    except FileNotFoundError:
+        print("WARNING: model artifacts not found. Run `python src/train_model.py` first.")
+    yield
+    state.clear()
+
 
 app = FastAPI(
     title="Customer Churn Prediction API",
     description="Predicts customer churn and explains predictions with SHAP.",
-    version="1.0.0",
+    version="2.0.0",
+    lifespan=lifespan,
 )
-
-# Load model artifacts once at startup (not on every request - much faster).
-pipeline, feature_names, background_sample = None, None, None
-
-
-@app.on_event("startup")
-def load_model_artifacts():
-    global pipeline, feature_names, background_sample
-    try:
-        pipeline, feature_names, background_sample = load_artifacts()
-        print("Model artifacts loaded successfully.")
-    except FileNotFoundError:
-        print("WARNING: model artifacts not found. Run `python src/train_model.py` first.")
 
 
 class CustomerFeatures(BaseModel):
-    """Schema for a single customer's raw (un-encoded) feature values."""
+    """One customer's raw feature values. Invalid values are rejected with HTTP 422."""
 
-    gender: str = Field(..., example="Female")
-    senior_citizen: int = Field(..., example=0)
-    partner: str = Field(..., example="Yes")
-    dependents: str = Field(..., example="No")
-    tenure_months: int = Field(..., example=12)
-    phone_service: str = Field(..., example="Yes")
-    multiple_lines: str = Field(..., example="No")
-    internet_service: str = Field(..., example="Fiber optic")
-    online_security: str = Field(..., example="No")
-    tech_support: str = Field(..., example="No")
-    streaming_tv: str = Field(..., example="Yes")
-    contract: str = Field(..., example="Month-to-month")
-    paperless_billing: str = Field(..., example="Yes")
-    payment_method: str = Field(..., example="Electronic check")
-    monthly_charges: float = Field(..., example=85.5)
-    total_charges: float = Field(..., example=1026.0)
-    num_support_calls: int = Field(..., example=3)
+    tenure_months: int = Field(..., ge=0, examples=[12])
+    monthly_charges: float = Field(..., ge=0, examples=[85.5])
+    num_support_calls: int = Field(..., ge=0, examples=[3])
+    contract: Literal["Month-to-month", "One year", "Two year"] = Field(..., examples=["Month-to-month"])
+    internet_service: Literal["DSL", "Fiber optic", "No"] = Field(..., examples=["Fiber optic"])
+    payment_method: Literal["Electronic check", "Mailed check", "Bank transfer", "Credit card"] = Field(
+        ..., examples=["Electronic check"]
+    )
+    tech_support: Literal["Yes", "No", "No internet service"] = Field(..., examples=["No"])
+    online_security: Literal["Yes", "No", "No internet service"] = Field(..., examples=["No"])
 
 
-def _ensure_model_loaded():
-    if pipeline is None:
+def _require_model():
+    if "pipeline" not in state:
         raise HTTPException(
             status_code=503,
             detail="Model not loaded. Run `python src/train_model.py` to train and save a model first.",
@@ -85,52 +83,42 @@ def _ensure_model_loaded():
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "model_loaded": pipeline is not None}
+    return {"status": "ok", "model_loaded": "pipeline" in state}
 
 
 @app.post("/predict")
 def predict_churn(customer: CustomerFeatures):
     """Predicts churn probability for one customer and explains the prediction with SHAP."""
-    _ensure_model_loaded()
+    _require_model()
 
-    X = pd.DataFrame([customer.dict()])
-    X = X[NUMERIC_FEATURES + CATEGORICAL_FEATURES]  # enforce correct column order
-
-    churn_probability = float(pipeline.predict_proba(X)[0, 1])
-    churn_prediction = "Yes" if churn_probability >= 0.5 else "No"
-
-    shap_contributions = explain_instance_shap(pipeline, feature_names, background_sample, X)
-    top_reasons = [
-        {"feature": feat, "impact": round(float(val), 4)}
-        for feat, val in list(shap_contributions.items())[:5]
-    ]
+    X = pd.DataFrame([customer.model_dump()])[MODEL_FEATURES]
+    churn_probability = float(state["pipeline"].predict_proba(X)[0, 1])
+    contributions = state["explainer"].explain_one(X)
 
     return {
-        "churn_prediction": churn_prediction,
+        "churn_prediction": "Yes" if churn_probability >= 0.5 else "No",
         "churn_probability": round(churn_probability, 4),
-        "top_reasons": top_reasons,
+        "top_reasons": [
+            {"feature": FEATURE_LABELS[feature], "impact": round(float(value), 4)}
+            for feature, value in list(contributions.items())[:5]
+        ],
     }
 
 
 @app.get("/feature-importance")
-def feature_importance(sample_size: int = 100):
-    """Returns global feature importance (mean absolute SHAP value) across a background sample."""
-    _ensure_model_loaded()
-
-    importance_df = global_feature_importance_shap(
-        pipeline, feature_names, background_sample, sample_size=sample_size
-    )
-    return importance_df.to_dict(orient="records")
+def feature_importance():
+    """Global feature importance (mean absolute SHAP value) over a background sample."""
+    _require_model()
+    return state["explainer"].global_importance(state["background"]).to_dict(orient="records")
 
 
 @app.get("/metrics")
 def get_metrics():
-    """Returns the saved evaluation metrics (accuracy, precision, recall, F1, ROC-AUC) for all models."""
-    metrics_path = f"{MODELS_DIR}/metrics.json"
-    if not os.path.exists(metrics_path):
+    """Saved evaluation metrics (accuracy, precision, recall, F1, ROC-AUC) for all models."""
+    metrics_path = MODELS_DIR / "metrics.json"
+    if not metrics_path.exists():
         raise HTTPException(status_code=404, detail="metrics.json not found. Run train_model.py first.")
-    with open(metrics_path) as f:
-        return json.load(f)
+    return json.loads(metrics_path.read_text())
 
 
 if __name__ == "__main__":

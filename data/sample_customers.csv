@@ -1,0 +1,61 @@
+customer_id,customer_name,mobile_number,email,tenure_months,monthly_charges,num_support_calls,contract,internet_service,payment_method,tech_support,online_security
+C1001,Aarav Kumar,+91-90000-10001,aarav.kumar@example.com,8,104.79,4,Month-to-month,DSL,Mailed check,No,No internet service
+C1002,Priya Reddy,+91-90000-10002,priya.reddy@example.com,47,109.56,2,One year,DSL,Mailed check,Yes,No internet service
+C1003,Rahul Menon,+91-90000-10003,rahul.menon@example.com,27,117.3,2,Two year,No,Bank transfer,No internet service,Yes
+C1004,Sneha Pillai,+91-90000-10004,sneha.pillai@example.com,44,81.96,0,One year,Fiber optic,Credit card,No,No
+C1005,Karthik Iyer,+91-90000-10005,karthik.iyer@example.com,32,85.08,1,Two year,DSL,Credit card,No internet service,Yes
+C1006,Divya Patel,+91-90000-10006,divya.patel@example.com,60,83.6,1,Two year,DSL,Mailed check,No,No
+C1007,Arjun Singh,+91-90000-10007,arjun.singh@example.com,29,56.51,0,Month-to-month,DSL,Electronic check,Yes,No
+C1008,Meera Sharma,+91-90000-10008,meera.sharma@example.com,11,64.98,2,One year,Fiber optic,Mailed check,No,No internet service
+C1009,Vikram Nair,+91-90000-10009,vikram.nair@example.com,54,53.54,0,Month-to-month,DSL,Bank transfer,No internet service,Yes
+C1010,Anjali Rao,+91-90000-10010,anjali.rao@example.com,6,23.67,1,Month-to-month,Fiber optic,Bank transfer,No,No
+C1011,Suresh Kumar,+91-90000-10011,suresh.kumar@example.com,62,71.86,0,Month-to-month,DSL,Mailed check,No internet service,Yes
+C1012,Kavya Reddy,+91-90000-10012,kavya.reddy@example.com,4,75.17,4,One year,DSL,Mailed check,No,Yes
+C1013,Rohan Menon,+91-90000-10013,rohan.menon@example.com,68,48.08,1,Two year,Fiber optic,Credit card,No internet service,No
+C1014,Nisha Pillai,+91-90000-10014,nisha.pillai@example.com,65,35.4,2,Month-to-month,DSL,Credit card,No,Yes
+C1015,Ganesh Iyer,+91-90000-10015,ganesh.iyer@example.com,51,37.88,1,One year,Fiber optic,Electronic check,Yes,No internet service
+C1016,Lakshmi Patel,+91-90000-10016,lakshmi.patel@example.com,19,101.83,0,Month-to-month,DSL,Bank transfer,No internet service,No
+C1017,Aditya Singh,+91-90000-10017,aditya.singh@example.com,44,86.5,2,Month-to-month,No,Electronic check,No internet service,No
+C1018,Pooja Sharma,+91-90000-10018,pooja.sharma@example.com,54,19.1,0,Month-to-month,DSL,Mailed check,No internet service,No internet service
+C1019,Harish Nair,+91-90000-10019,harish.nair@example.com,72,50.92,1,One year,Fiber optic,Bank transfer,Yes,Yes
+C1020,Deepa Rao,+91-90000-10020,deepa.rao@example.com,19,25.16,3,Month-to-month,No,Credit card,No internet service,Yes
+C1021,Aarav Kumar,+91-90000-10021,aarav.kumar@example.com,7,106.67,2,One year,Fiber optic,Electronic check,Yes,Yes
+C1022,Priya Reddy,+91-90000-10022,priya.reddy@example.com,22,20.65,0,Month-to-month,Fiber optic,Credit card,Yes,Yes
+C1023,Rahul Menon,+91-90000-10023,rahul.menon@example.com,65,48.86,0,One year,DSL,Mailed check,No internet service,No internet service
+C1024,Sneha Pillai,+91-90000-10024,sneha.pillai@example.com,41,52.83,5,Two year,No,Credit card,No internet service,No internet service
+C1025,Karthik Iyer,+91-90000-10025,karthik.iyer@example.com,59,26.03,1,Two year,Fiber optic,Credit card,No,No
+C1026,Divya Patel,+91-90000-10026,divya.patel@example.com,57,99.76,1,Two year,No,Bank transfer,No internet service,No internet service
+C1027,Arjun Singh,+91-90000-10027,arjun.singh@example.com,69,104.26,0,Month-to-month,DSL,Mailed check,No internet service,Yes
+C1028,Meera Sharma,+91-90000-10028,meera.sharma@example.com,28,111.74,0,One year,Fiber optic,Credit card,No,No
+C1029,Vikram Nair,+91-90000-10029,vikram.nair@example.com,22,101.51,0,Month-to-month,DSL,Electronic check,No,Yes
+C1030,Anjali Rao,+91-90000-10030,anjali.rao@example.com,22,109.89,1,One year,DSL,Bank transfer,No,Yes
+C1031,Suresh Kumar,+91-90000-10031,suresh.kumar@example.com,43,21.13,1,Month-to-month,No,Electronic check,No internet service,No internet service
+C1032,Kavya Reddy,+91-90000-10032,kavya.reddy@example.com,35,105.78,1,Month-to-month,Fiber optic,Mailed check,No,No
+C1033,Rohan Menon,+91-90000-10033,rohan.menon@example.com,17,25.03,4,Month-to-month,No,Electronic check,Yes,Yes
+C1034,Nisha Pillai,+91-90000-10034,nisha.pillai@example.com,72,37.84,2,Month-to-month,DSL,Mailed check,Yes,No
+C1035,Ganesh Iyer,+91-90000-10035,ganesh.iyer@example.com,67,66.85,4,Month-to-month,Fiber optic,Electronic check,No,No
+C1036,Lakshmi Patel,+91-90000-10036,lakshmi.patel@example.com,40,22.18,2,One year,Fiber optic,Bank transfer,No,No internet service
+C1037,Aditya Singh,+91-90000-10037,aditya.singh@example.com,37,92.82,1,Two year,DSL,Credit card,Yes,No internet service
+C1038,Pooja Sharma,+91-90000-10038,pooja.sharma@example.com,66,84.7,2,Two year,Fiber optic,Mailed check,Yes,No
+C1039,Harish Nair,+91-90000-10039,harish.nair@example.com,5,20.18,1,Two year,Fiber optic,Bank transfer,No,No
+C1040,Deepa Rao,+91-90000-10040,deepa.rao@example.com,42,53.79,0,One year,Fiber optic,Mailed check,Yes,Yes
+C1041,Aarav Kumar,+91-90000-10041,aarav.kumar@example.com,41,71.21,1,Month-to-month,No,Bank transfer,Yes,Yes
+C1042,Priya Reddy,+91-90000-10042,priya.reddy@example.com,51,112.73,0,Month-to-month,Fiber optic,Bank transfer,Yes,No
+C1043,Rahul Menon,+91-90000-10043,rahul.menon@example.com,49,55.9,0,Month-to-month,DSL,Mailed check,No,Yes
+C1044,Sneha Pillai,+91-90000-10044,sneha.pillai@example.com,13,87.13,2,Month-to-month,Fiber optic,Mailed check,No,No internet service
+C1045,Karthik Iyer,+91-90000-10045,karthik.iyer@example.com,46,39.66,2,Month-to-month,Fiber optic,Mailed check,No,No internet service
+C1046,Divya Patel,+91-90000-10046,divya.patel@example.com,24,87.09,3,Month-to-month,DSL,Mailed check,No,Yes
+C1047,Arjun Singh,+91-90000-10047,arjun.singh@example.com,40,116.93,2,Month-to-month,Fiber optic,Mailed check,No,Yes
+C1048,Meera Sharma,+91-90000-10048,meera.sharma@example.com,41,43.82,2,Month-to-month,No,Mailed check,No internet service,No
+C1049,Vikram Nair,+91-90000-10049,vikram.nair@example.com,22,41.97,1,Month-to-month,DSL,Mailed check,Yes,Yes
+C1050,Anjali Rao,+91-90000-10050,anjali.rao@example.com,56,91.13,3,One year,DSL,Mailed check,No,No internet service
+C1051,Suresh Kumar,+91-90000-10051,suresh.kumar@example.com,62,94.58,0,Month-to-month,DSL,Electronic check,No,No
+C1052,Kavya Reddy,+91-90000-10052,kavya.reddy@example.com,49,60.52,2,Month-to-month,DSL,Bank transfer,Yes,No internet service
+C1053,Rohan Menon,+91-90000-10053,rohan.menon@example.com,64,81.58,0,Two year,DSL,Credit card,No internet service,Yes
+C1054,Nisha Pillai,+91-90000-10054,nisha.pillai@example.com,32,63.57,1,Month-to-month,Fiber optic,Bank transfer,No internet service,Yes
+C1055,Ganesh Iyer,+91-90000-10055,ganesh.iyer@example.com,20,19.62,2,Two year,DSL,Electronic check,Yes,No
+C1056,Lakshmi Patel,+91-90000-10056,lakshmi.patel@example.com,1,79.78,2,Two year,No,Mailed check,No internet service,Yes
+C1057,Aditya Singh,+91-90000-10057,aditya.singh@example.com,20,32.7,1,Two year,No,Mailed check,No internet service,Yes
+C1058,Pooja Sharma,+91-90000-10058,pooja.sharma@example.com,66,26.04,1,Two year,No,Mailed check,No,No internet service
+C1059,Harish Nair,+91-90000-10059,harish.nair@example.com,39,75.83,1,One year,Fiber optic,Electronic check,No internet service,Yes
+C1060,Deepa Rao,+91-90000-10060,deepa.rao@example.com,12,81.41,1,Two year,No,Bank transfer,Yes,No

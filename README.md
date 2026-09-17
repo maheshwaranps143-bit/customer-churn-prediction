@@ -15,7 +15,8 @@ each prediction was made, using SHAP and LIME.
 - **Evaluation metrics**: Accuracy, Precision, Recall, F1-score, ROC-AUC
 - **Explainability layer**: SHAP (global + local explanations) and LIME (local, cross-check)
 - **REST API** (FastAPI): `/predict`, `/feature-importance`, `/metrics`, `/health`
-- **Streamlit dashboard**: interactive churn prediction + visual explanations
+- **Streamlit dashboard**: individual prediction, plus **collective prediction** — upload a customer CSV and download the list of customers likely to churn, ranked by risk, with the main reasons for each
+- **Eight input features**, chosen because they are the ones that drive churn in the data
 - **Docker support** for one-command deployment
 
 ---
@@ -26,7 +27,8 @@ each prediction was made, using SHAP and LIME.
 churn_project/
 ├── data/
 │   ├── generate_sample_data.py   # creates the synthetic sample dataset
-│   └── customer_churn.csv        # sample dataset (3000 customers)
+│   ├── customer_churn.csv        # training dataset (3000 customers)
+│   └── sample_customers.csv      # example file for collective prediction
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb # EDA: churn rate, correlations, boxplots
 │   └── 02_model_training.ipynb   # interactive walkthrough of training
@@ -103,23 +105,14 @@ Example `/predict` request body:
 
 ```json
 {
-  "gender": "Female",
-  "senior_citizen": 0,
-  "partner": "Yes",
-  "dependents": "No",
-  "tenure_months": 3,
-  "phone_service": "Yes",
-  "multiple_lines": "No",
-  "internet_service": "Fiber optic",
-  "online_security": "No",
-  "tech_support": "No",
-  "streaming_tv": "Yes",
+  "tenure_months": 8,
+  "monthly_charges": 85.5,
+  "num_support_calls": 3,
   "contract": "Month-to-month",
-  "paperless_billing": "Yes",
+  "internet_service": "Fiber optic",
   "payment_method": "Electronic check",
-  "monthly_charges": 95.5,
-  "total_charges": 286.5,
-  "num_support_calls": 4
+  "tech_support": "No",
+  "online_security": "No"
 }
 ```
 
@@ -128,16 +121,60 @@ Example response:
 ```json
 {
   "churn_prediction": "Yes",
-  "churn_probability": 0.9786,
+  "churn_probability": 0.9639,
   "top_reasons": [
-    {"feature": "tenure_months", "impact": 0.1096},
-    {"feature": "num_support_calls", "impact": 0.0869},
-    {"feature": "contract_Month-to-month", "impact": 0.0809},
-    {"feature": "monthly_charges", "impact": 0.056},
-    {"feature": "internet_service_Fiber optic", "impact": 0.0372}
+    {"feature": "Contract", "impact": 1.048},
+    {"feature": "Tenure (months)", "impact": 0.9397},
+    {"feature": "Internet service", "impact": 0.4878},
+    {"feature": "Payment method", "impact": 0.4064},
+    {"feature": "Support calls", "impact": 0.4027}
   ]
 }
 ```
+
+Values outside the accepted set (for example `"contract": "Weekly"` or a
+negative tenure) are rejected with HTTP 422 instead of producing a guess.
+
+---
+
+## 📋 Input features
+
+| Feature | Accepted values | Why it matters |
+|---|---|---|
+| `contract` | Month-to-month, One year, Two year | Strongest driver: monthly customers can leave at any time |
+| `tenure_months` | whole number, 0 or more | Long-standing customers are less likely to leave |
+| `monthly_charges` | number, 0 or more | Higher bills raise churn risk |
+| `num_support_calls` | whole number, 0 or more | Repeated calls signal unresolved problems |
+| `internet_service` | DSL, Fiber optic, No | Fibre customers churn more often in this data |
+| `payment_method` | Electronic check, Mailed check, Bank transfer, Credit card | Electronic-check payers churn more often |
+| `tech_support` | Yes, No, No internet service | Included support is protective |
+| `online_security` | Yes, No, No internet service | Included security is protective |
+
+The sample dataset contains nine more columns (gender, partner, streaming TV and
+so on). They have no effect on churn in this data, and `total_charges` is just
+`monthly_charges × tenure_months`, so the model does not use them.
+
+---
+
+## 👥 Collective prediction (CSV upload)
+
+In the dashboard's **Collective prediction** tab, upload a CSV with one row per
+customer:
+
+- **Required:** `customer_id` and the eight input features above
+- **Optional:** `customer_name`, `mobile_number`, `email`, and any other columns —
+  they are shown in the results and never used by the model
+
+Column names and category values are not case-sensitive. Rows with missing or
+invalid values are listed separately with the reason, rather than guessed.
+A ready-made example is in `data/sample_customers.csv`, and the app offers a
+template download.
+
+The results are sorted by churn probability, labelled High (70%+), Medium
+(40–70%) or Low risk, and include each customer's main reasons. A slider sets
+the probability at which a customer counts as "likely to churn". Both the
+flagged customers and the full results can be downloaded as CSV. Files of up to
+200,000 rows are supported; 100,000 rows take a few seconds.
 
 ---
 
@@ -150,11 +187,9 @@ Point it at your customer database instead of the CSV:
 from preprocessing import load_from_sql
 
 query = """
-    SELECT customer_id, gender, senior_citizen, partner, dependents,
-           tenure_months, phone_service, multiple_lines, internet_service,
-           online_security, tech_support, streaming_tv, contract,
-           paperless_billing, payment_method, monthly_charges,
-           total_charges, num_support_calls, churn
+    SELECT customer_id, tenure_months, monthly_charges,
+           num_support_calls, contract, internet_service,
+           payment_method, tech_support, online_security, churn
     FROM customers
 """
 df = load_from_sql("postgresql://user:password@host:5432/mydb", query)
@@ -194,4 +229,4 @@ Then pass `df` into `clean_data()` / `prepare_train_test_split()` as usual.
 |---|---|
 | `FileNotFoundError: data/customer_churn.csv` | Run scripts from the project root, not from inside `src/` |
 | API says "Model not loaded" | Run `python src/train_model.py` first to create `models/best_model.pkl` |
-| SHAP explanations are slow | Reduce `sample_size` in `/feature-importance` or the background sample size in `train_model.py` |
+| Upload says columns are missing | Compare your headers with the template CSV in the Collective prediction tab |
